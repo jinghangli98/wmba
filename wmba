@@ -16,13 +16,28 @@ import sys
 
 img = sys.argv[1]
 output = sys.argv[2]
-print(f'Reading image(s): {img}')
-print(f'Output will be saved to: {output}')
+try:
+    mni = sys.argv[3]
+    print(f'Reading MNI spaced image(s): {img}')
+    print(f'Output will be saved to: {output}')
+except:
+    mni = 'native'
+    print(f'Reading Native spaced image(s): {img}')
+    print(f'Output will be saved to: {output}')
+    print('Warning!! Brain age might not be accurate if the image is not MNI Spaced. The code will help you convert the inference image to the MNI space if it is not.')
+
 '''
+Example Usage:
+wmba /ix1/tibrahim/jil202/ratiomap/img/derivatives/ratiomap/639_20200128135731/wm_639_20200128135731_ratio.nii.gz /ix1/tibrahim/jil202/ratiomap/img/derivatives/ratiomap/639_20200128135731/wm_639_20200128135731_ratio_wmba.csv
+wmba /ix1/tibrahim/jil202/ratiomap/img/derivatives/ratiomap/639_20200128135731/mni_639_20200128135731_ratio.nii.gz /ix1/tibrahim/jil202/ratiomap/img/derivatives/ratiomap/639_20200128135731/wm_639_20200128135731_ratio_wmba.csv MNI
 
 '''
 wm_path = natsorted(glob.glob(f'{img}'))
-wm_dataset = ratio_dataset(wm_path)
+if mni == 'MNI':
+    wm_dataset = ratio_dataset(wm_path, MNI=True)
+else:
+    wm_dataset = ratio_dataset(wm_path, MNI=False)
+    
 wm_loader = DataLoader(wm_dataset, batch_size=1, shuffle=False)
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
